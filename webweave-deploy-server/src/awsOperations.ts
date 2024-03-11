@@ -47,3 +47,37 @@ export async function fileDownloader(filepath: string) {
 
   await Promise.all(downloadPromises);
 }
+
+export const uploadFinalDist = (id: string) => {
+  const folderPath = path.join(__dirname, `output/${id}/dist`);
+  const allFiles = getAllFilePaths(folderPath);
+  allFiles.forEach((file) => {
+    UploadFile(`dist/${id}/` + file.slice(folderPath.length + 1), file);
+  });
+};
+
+const getAllFilePaths = (folderPath: string) => {
+  let response: string[] = [];
+  const allFoldersAndFiles = fs.readdirSync(folderPath);
+  allFoldersAndFiles.forEach((file) => {
+    const fileFullPath = path.join(folderPath, file);
+    if (fs.statSync(fileFullPath).isDirectory()) {
+      response = response.concat(getAllFilePaths(fileFullPath));
+    } else {
+      const normalizedPath = fileFullPath.replace(/\\/g, "/");
+      response.push(normalizedPath);
+    }
+  });
+  return response;
+};
+
+const UploadFile = async (fileName: string, localFilePath: string) => {
+  const fileContent = fs.readFileSync(localFilePath);
+  const response = await dataRoom
+    .upload({
+      Body: fileContent,
+      Bucket: "webweave",
+      Key: fileName,
+    })
+    .promise();
+};
