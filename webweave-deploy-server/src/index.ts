@@ -1,4 +1,5 @@
 import { createClient,commandOptions } from "redis";
+import { fileDownloader } from "./fileDownloader";
 const subscriber = createClient();
 subscriber.connect();
 
@@ -10,6 +11,10 @@ async function main(){
             0
         );
         console.log(response);
+        //@ts-ignore
+        await fileDownloader(`output/${response.element}`);
+        console.log("downloaded");
+
     }
 }
 
