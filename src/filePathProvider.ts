@@ -9,7 +9,8 @@ export function getAllFilePaths(folderPath: string) {
     if (fs.statSync(fileFullPath).isDirectory()) {
       response = response.concat(getAllFilePaths(fileFullPath));
     } else {
-      response.push(fileFullPath);
+      const normalizedPath = fileFullPath.replace(/\\/g, "/");
+      response.push(normalizedPath);
     }
   });
   return response;

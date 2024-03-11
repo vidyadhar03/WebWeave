@@ -1,9 +1,16 @@
 import express from "express";
 import cors from "cors";
 import simpleGit from "simple-git";
+import path from "path";
 import {generate} from "./utils";
 import { getAllFilePaths } from "./filePathProvider";
-import path from "path";
+import { UploadFile } from "./fileUploader";
+import { createClient } from "redis";
+const publisher = createClient();
+publisher.connect();
+// import { createClient } from "redis";
+// const publisher = createClient();
+// publisher.connect();
 const port = 3000;
 
 const app = express();
@@ -19,9 +26,13 @@ app.post("/deploy",async(req,res)=>{
     const id = generate();
     await simpleGit().clone(repoUrl,path.join(__dirname,`output/${id}`) );
     const files = getAllFilePaths(path.join(__dirname,`output/${id}`));
-    console.log(files);
+    // console.log(files);
+    files.forEach(async file=>{
+        await UploadFile(file.slice(__dirname.length+1),file);
+    })
+    publisher.lPush("build-queue",id);
     res.status(200).json({id:id});
 })
 
-app.listen(port,()=>{console.log("listening on",{port})});
+app.listen(port,()=>{console.log("listening on",port)});
 
