@@ -29,8 +29,10 @@ app.post("/deploy",async(req,res)=>{
     files.forEach(async file=>{
         await UploadFile(file.slice(__dirname.length+1),file);
     })
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     publisher.lPush("build-queue",id);
     publisher.hSet("status",id,"Uploaded");
+    console.log("Files uploaded to bucket");
     res.status(200).json({id:id});
 })
 

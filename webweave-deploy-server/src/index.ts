@@ -21,6 +21,7 @@ async function main() {
     console.log("downloaded");
     await buildProject(id);
     uploadFinalDist(id);
+    console.log("Deployed");
     publisher.hSet("status",id,"Deployed");
   }
 }
