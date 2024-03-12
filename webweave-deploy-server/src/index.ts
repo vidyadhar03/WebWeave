@@ -4,6 +4,9 @@ import { buildProject } from "./utils";
 const subscriber = createClient();
 subscriber.connect();
 
+const publisher = createClient();
+publisher.connect();
+
 async function main() {
   while (1) {
     const response = await subscriber.brPop(
@@ -18,6 +21,7 @@ async function main() {
     console.log("downloaded");
     await buildProject(id);
     uploadFinalDist(id);
+    publisher.hSet("status",id,"Deployed");
   }
 }
 

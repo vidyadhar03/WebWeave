@@ -8,9 +8,8 @@ import { UploadFile } from "./fileUploader";
 import { createClient } from "redis";
 const publisher = createClient();
 publisher.connect();
-// import { createClient } from "redis";
-// const publisher = createClient();
-// publisher.connect();
+const subscriber = createClient();
+subscriber.connect();
 const port = 3000;
 
 const app = express();
@@ -31,8 +30,18 @@ app.post("/deploy",async(req,res)=>{
         await UploadFile(file.slice(__dirname.length+1),file);
     })
     publisher.lPush("build-queue",id);
+    publisher.hSet("status",id,"Uploaded");
     res.status(200).json({id:id});
 })
+
+app.get("/status", async (req, res) => {
+    const id = req.query.id;
+    const response = await subscriber.hGet("status", id as string);
+    res.status(200).json({
+        status: response
+    })
+})
+
 
 app.listen(port,()=>{console.log("listening on",port)});
 
