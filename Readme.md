@@ -1,0 +1,1 @@
+WEB WEAVE is a platform which can deploy React and Javascript frontends by using the GitHub Repository URL. It uses AWS S3 to store the project files and build artifacts.
